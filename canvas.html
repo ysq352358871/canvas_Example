@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				padding: 0;margin: 0;
+				list-style: none;
+				text-decoration: none;
+			}
+			.canvas{
+				width: 900px;height:500px;
+				border: 1px solid #C0C0C0;
+				margin: auto;
+				margin-top: 50px;
+				box-sizing: border-box;
+				position: relative;
+			}
+			.nav{
+				width: 100%;height: 40px;
+				border-bottom:1px solid #C0C0C0;
+				z-index: 99;
+			}
+			.nav li{
+				float: left;
+				width: 20%;
+				height: 100%;
+				text-align: center;
+				line-height: 40px;
+				color: #969696;
+				position: relative;
+			}
+			.nav li a{
+				width: 100%;height: 100%;
+				display: block;
+				color: #969696;
+			}
+			.nav li ul{
+				width: 100%;height:auto;
+				box-sizing: border-box;
+				border: 1px solid #C0C0C0;
+				border-bottom: none;
+				position: absolute;
+				top:40px;right: 0;
+				z-index: 99;
+				display: none;
+			}
+			.nav li ul:before,.nav li ul:after{
+				content: "";
+				width: 100%;
+				display: block;
+				clear: both;
+			}
+			.nav li ul li{
+				width: 100%;height: 100%;
+				display: block;
+				border-bottom: 1px solid #C0C0C0;
+				cursor: pointer;
+			}
+			.color{
+				background: #111111;
+			}
+			.box{
+				width: 900px;height: 460px;
+				position: relative;
+			}
+			.copy{
+				width: 900px;height: 460px;
+				position:absolute;
+				left:0;top:0px;
+				z-index: 10;
+			}
+			.eraser{
+				width: 20px;height: 15px;
+				border-radius: 4px;
+				background: #777777;
+				position: absolute;
+				top:0;left: 0;
+				display:none;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="canvas">
+			<ul class="nav">
+				<li class="btn color">
+					<a href="javascript:;">文件</a>
+					<ul class="file">
+						<li data-col="new">新建</li>
+						<li data-col="return">返回</li>
+						<li data-col="save">保存</li>
+						<li data-col="reset">重置</li>
+					</ul>
+				</li>
+				<li class="btn">
+					<a href="javascript:;">形状</a>
+					<ul class="shape">
+						<li data-col="line">直线</li>
+						<li data-col="rect">矩形</li>
+						<li data-col="arc">圆</li>
+						<li data-col="rects">多边形</li>
+						<li data-col="angles">星形</li>
+						<li data-col="pen">钢笔</li>
+					</ul>
+				</li>
+				<li class="btn">
+					<a href="javascript:;">填充</a>
+					<ul class="fill">
+						<li data-col="strokeStyle">
+							边框填充：<input type="color" name="" id="" value="" />
+						</li>
+						<li data-col="fillStyle">
+							内容填充：<input type="color" name="" id="" value="" />
+						</li>
+					</ul>
+				</li>
+				<li class="btn">
+					<a href="javascript:;">样式</a>
+					<ul class="style">
+						<li data-rol="stroke">边框</li>
+						<li data-rol="fill">填充</li>
+						<li data-rol="width">边宽宽度</li>
+					</ul>
+				</li>
+				<li class="btn eraser_btn">
+					<a href="javascript:;">橡皮</a>
+				</li>
+			</ul>
+			<div class="box">
+				<canvas id="canvasAre" width="900" height="460">
+					你的浏览器不支持canvas
+				</canvas>
+				<div class="copy"></div>
+				<div class="eraser"></div>
+			</div>
+		</div>
+	</body>
+	<script src="jquery.min.js"></script>
+	<script src="shape.js"></script>
+	<script type="text/javascript">
+		document.addEventListener("DOMContentLoaded",function(){
+			var copy=$(".copy")[0] //转换为DOM对象。
+			var canvas=$("#canvasAre")[0];
+			var obj=canvas.getContext("2d");
+			var canvasObj=new shape(canvas,obj,copy);
+			$(".btn").on("click",function(e){
+				$(".btn").removeClass("color");
+				$(this).addClass("color");
+				$(this).find("ul").slideToggle();
+			})
+			$(".btn li").bind("click",function(e){
+				e.stopPropagation();
+				if($(this).attr("data-col")=="pen"){
+					canvasObj.pen();
+				}else{
+					if($(this).attr("data-col")=="line"){
+						canvasObj.style="line";
+					}else if($(this).attr("data-col")=="rect"){
+						canvasObj.style="rect";
+					}else if($(this).attr("data-col")=="arc"){
+						canvasObj.style="arc";
+					}else if($(this).attr("data-col")=="rects"){
+						var num=prompt("多边形:",5)
+						canvasObj.bianNum=num;
+						canvasObj.style="rects";
+					}else if($(this).attr("data-col")=="angles"){
+						var num=prompt("星形:",5)
+						canvasObj.angleNums=num;
+						canvasObj.style="angles";
+					}else if($(this).attr("data-rol")=="stroke"){ //选择是边框还是填充
+						canvasObj.type=$(this).attr("data-rol");
+					}else if($(this).attr("data-rol")=="fill"){ //选择是边框还是填充
+						canvasObj.type=$(this).attr("data-rol");
+					}else if($(this).attr("data-rol")=="width"){ //设置边框宽度
+						var width=prompt("边框宽度为:",1)
+						canvasObj.lineWidth=width;
+					}else if($(this).attr("data-col")=="strokeStyle"){ //设置边框颜色
+						$(this).find("input").change(function(){
+							canvasObj.strokeStyle=$(this).val();	
+						})
+					}
+					else if($(this).attr("data-col")=="fillStyle"){ //设置填充颜色
+						$(this).find("input").change(function(){
+							canvasObj.fillStyle=$(this).val();	
+						})
+					}
+					canvasObj.draw();
+				}
+				
+			})
+			//橡皮擦工具;
+			$(".eraser_btn").on("click",function(e){
+				var xpObj=$(".eraser")[0];//这是一个dom对象
+				canvasObj.px(xpObj);
+			})
+			//文夹操作：
+			var firstBack=true;
+			$(".file li").bind("click",function(){
+				var index=$(this).index();
+				if(index==0){  //新建
+					canvasObj.newFile()
+				}else if(index==1){  //保存
+					
+				    if(canvasObj.history.length==0){
+				    		alert("没有历史记录!");
+				    }else if(canvasObj.history.length==1){
+				    		canvasObj.history.pop();
+				    		canvasObj.obj.clearRect(0,0,canvas.width,canvas.height);
+				    }else{
+				    	if(firstBack){
+				    			canvasObj.history.pop();
+				    			canvasObj.obj.putImageData(canvasObj.history.pop(),0,0);
+				    			firstBack=false;
+				    	}else{
+				    			console.log(firstBack);
+				    			canvasObj.obj.putImageData(canvasObj.history.pop(),0,0);
+				    	}
+				    		
+				    }
+				}else if(index==2){
+	           location.href=canvas.toDataURL().replace("data:image/png","data:stream/octet");
+				}
+			})
+			
+		})
+	</script>
+</html>
